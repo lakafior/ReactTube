@@ -2,7 +2,7 @@ import {CompositeScreenProps} from "@react-navigation/native";
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import {Icon} from "@rneui/base";
 import React, {useCallback, useEffect} from "react";
-import {Platform, StyleSheet, View} from "react-native";
+import {Platform, StyleSheet, View, ScrollView} from "react-native";
 
 import SettingsItem, {
   SettingsButton,
@@ -11,6 +11,7 @@ import SettingsSection from "../components/settings/SettingsSection";
 import {parsePlayerResolution} from "../components/settings/screens/PlayerResolutionSelector";
 import {parsePlayerType} from "../components/settings/screens/PlayerSelector";
 import {useAppData} from "../context/AppDataContext";
+import {useAppStyle} from "../context/AppStyleContext";
 import {RootStackParamList} from "../navigation/RootStackNavigator";
 import {SettingsStackParamList} from "../navigation/SettingsNavigator";
 import {parseLanguage} from "../utils/YTLanguages";
@@ -25,6 +26,9 @@ type Props = CompositeScreenProps<
 export default function SettingsScreen({navigation}: Props) {
   const {appSettings} = useAppData();
   const {logout, clearAllData} = useAccountContext();
+  const {style} = useAppStyle();
+  const isTV = Platform.isTV;
+  const tvTokens = style.appleTVTokens;
 
   useEffect(() => {
     if (!Platform.isTV) {
@@ -53,8 +57,8 @@ export default function SettingsScreen({navigation}: Props) {
     [navigation],
   );
 
-  return (
-    <View style={styles.containerStyle}>
+  const content = (
+    <>
       <SettingsSection sectionTitle={"General"}>
         <SettingsItem
           icon={"globe"}
@@ -64,31 +68,62 @@ export default function SettingsScreen({navigation}: Props) {
           onPress={() => navigate("LanguageSelector")}
         />
         <SettingsItem
-          icon={"globe"}
+          icon={"play-circle"}
           iconBackground={"blue"}
           label={"Video player"}
           value={parsePlayerType(appSettings).label}
           onPress={() => navigate("PlayerSelector")}
         />
         <SettingsItem
-          icon={"globe"}
+          icon={"settings"}
           iconBackground={"#f5d132"}
           label={"Video resolution variant"}
           value={parsePlayerResolution(appSettings).label}
           onPress={() => navigate("PlayerResolutionSelector")}
         />
         <SettingsItem
-          icon={"globe"}
-          iconBackground={"#f5d132"}
+          icon={"clock"}
+          iconBackground={"#32a852"}
           label={"History enabled"}
           value={appSettings.trackingEnabled ? "True" : "False"}
           onPress={() => navigate("TrackingSelector")}
         />
-        <SettingsButton label={"Clear all"} onPress={() => clearAllData()} />
-        <SettingsButton label={"Logout"} onPress={() => logout()} />
       </SettingsSection>
-    </View>
+
+      <SettingsSection sectionTitle={"Account"}>
+        <SettingsButton
+          icon={"trash-2"}
+          iconBackground={"#ff3333"}
+          label={"Clear all"}
+          onPress={() => clearAllData()}
+        />
+        <SettingsButton
+          icon={"log-out"}
+          iconBackground={"#666666"}
+          label={"Logout"}
+          onPress={() => logout()}
+        />
+      </SettingsSection>
+    </>
   );
+
+  if (isTV && tvTokens) {
+    return (
+      <ScrollView
+        style={[
+          styles.containerStyle,
+          {backgroundColor: style.backgroundColor},
+        ]}
+        contentContainerStyle={{
+          paddingBottom: tvTokens.cardMargin * 4,
+        }}
+        showsVerticalScrollIndicator={false}>
+        {content}
+      </ScrollView>
+    );
+  }
+
+  return <View style={styles.containerStyle}>{content}</View>;
 }
 
 const styles = StyleSheet.create({

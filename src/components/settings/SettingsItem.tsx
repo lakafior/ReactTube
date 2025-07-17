@@ -1,5 +1,7 @@
 import {Feather} from "@expo/vector-icons";
-import {StyleSheet, TouchableOpacity, View, Text} from "react-native";
+import {StyleSheet, TouchableOpacity, View, Text, Platform} from "react-native";
+
+import {useAppStyle} from "../../context/AppStyleContext";
 
 interface Props {
   onPress?: () => void;
@@ -16,25 +18,89 @@ export default function SettingsSelectorOverview({
   label,
   value,
 }: Props) {
+  const {style} = useAppStyle();
+  const isTV = Platform.isTV;
+  const tvTokens = style.appleTVTokens;
+
   return (
-    <View style={[styles.rowWrapper, styles.rowFirst]}>
-      <TouchableOpacity onPress={onPress} style={styles.row}>
-        <View style={[styles.rowIcon, {backgroundColor: iconBackground}]}>
+    <View
+      style={[
+        styles.rowWrapper,
+        styles.rowFirst,
+        isTV &&
+          tvTokens && {
+            backgroundColor: tvTokens.cardBackgroundColor,
+            borderRadius: tvTokens.cardBorderRadius,
+            marginHorizontal: tvTokens.cardMargin,
+            marginVertical: tvTokens.cardMargin / 2,
+            shadowColor: tvTokens.shadowColor,
+            shadowOpacity: tvTokens.shadowOpacity,
+            shadowRadius: tvTokens.shadowRadius,
+            elevation: tvTokens.elevation,
+          },
+      ]}>
+      <TouchableOpacity
+        onPress={onPress}
+        style={[
+          styles.row,
+          isTV &&
+            tvTokens && {
+              padding: tvTokens.cardPadding,
+              height: "auto",
+              minHeight: 80,
+            },
+        ]}>
+        <View
+          style={[
+            styles.rowIcon,
+            {backgroundColor: iconBackground},
+            isTV &&
+              tvTokens && {
+                width: tvTokens.iconSize + 6,
+                height: tvTokens.iconSize + 6,
+                borderRadius: 8,
+              },
+          ]}>
           <Feather
             color={"#fff"}
             // @ts-ignore
             name={icon}
-            size={20}
+            size={isTV && tvTokens ? tvTokens.iconSize : 20}
           />
         </View>
 
-        <Text style={styles.rowLabel}>{label}</Text>
+        <Text
+          style={[
+            styles.rowLabel,
+            {color: style.textColor},
+            isTV &&
+              tvTokens && {
+                fontSize: tvTokens.bodyFontSize,
+                fontWeight: "600",
+              },
+          ]}>
+          {label}
+        </Text>
 
         <View style={styles.rowSpacer} />
 
-        <Text style={styles.rowValue}>{value}</Text>
+        <Text
+          style={[
+            styles.rowValue,
+            isTV &&
+              tvTokens && {
+                fontSize: tvTokens.captionFontSize,
+                marginRight: 12,
+              },
+          ]}>
+          {value}
+        </Text>
 
-        <Feather color={"#C6C6C6"} name={"chevron-right"} size={20} />
+        <Feather
+          color={"#C6C6C6"}
+          name={"chevron-right"}
+          size={isTV && tvTokens ? tvTokens.iconSize - 8 : 20}
+        />
       </TouchableOpacity>
     </View>
   );
@@ -51,15 +117,59 @@ export function SettingsSelectorItem({
   label,
   selected,
 }: PropsSelectorItem) {
+  const {style} = useAppStyle();
+  const isTV = Platform.isTV;
+  const tvTokens = style.appleTVTokens;
+
   return (
-    <View style={[styles.rowWrapper, styles.rowFirst]}>
-      <TouchableOpacity onPress={onPress} style={styles.row}>
-        <Text style={styles.rowLabel}>{label}</Text>
+    <View
+      style={[
+        styles.rowWrapper,
+        styles.rowFirst,
+        isTV &&
+          tvTokens && {
+            backgroundColor: tvTokens.cardBackgroundColor,
+            borderRadius: tvTokens.cardBorderRadius,
+            marginHorizontal: tvTokens.cardMargin,
+            marginVertical: tvTokens.cardMargin / 2,
+            shadowColor: tvTokens.shadowColor,
+            shadowOpacity: tvTokens.shadowOpacity,
+            shadowRadius: tvTokens.shadowRadius,
+            elevation: tvTokens.elevation,
+          },
+      ]}>
+      <TouchableOpacity
+        onPress={onPress}
+        style={[
+          styles.row,
+          isTV &&
+            tvTokens && {
+              padding: tvTokens.cardPadding,
+              height: "auto",
+              minHeight: 80,
+            },
+        ]}>
+        <Text
+          style={[
+            styles.rowLabel,
+            {color: style.textColor},
+            isTV &&
+              tvTokens && {
+                fontSize: tvTokens.bodyFontSize,
+                fontWeight: "600",
+              },
+          ]}>
+          {label}
+        </Text>
 
         <View style={styles.rowSpacer} />
 
         {selected ? (
-          <Feather color={"#C6C6C6"} name={"check"} size={20} />
+          <Feather
+            color={"#C6C6C6"}
+            name={"check"}
+            size={isTV && tvTokens ? tvTokens.iconSize - 8 : 20}
+          />
         ) : null}
       </TouchableOpacity>
     </View>
@@ -81,23 +191,77 @@ export function SettingsStandaloneSelector({
   label,
   selected,
 }: PropsStandaloneSelectorItem) {
+  const {style} = useAppStyle();
+  const isTV = Platform.isTV;
+  const tvTokens = style.appleTVTokens;
+
   return (
-    <View style={[styles.rowWrapper, styles.rowFirst]}>
-      <TouchableOpacity onPress={onPress} style={styles.row}>
-        <View style={[styles.rowIcon, {backgroundColor: iconBackground}]}>
+    <View
+      style={[
+        styles.rowWrapper,
+        styles.rowFirst,
+        isTV &&
+          tvTokens && {
+            backgroundColor: tvTokens.cardBackgroundColor,
+            borderRadius: tvTokens.cardBorderRadius,
+            marginHorizontal: tvTokens.cardMargin,
+            marginVertical: tvTokens.cardMargin / 2,
+            shadowColor: tvTokens.shadowColor,
+            shadowOpacity: tvTokens.shadowOpacity,
+            shadowRadius: tvTokens.shadowRadius,
+            elevation: tvTokens.elevation,
+          },
+      ]}>
+      <TouchableOpacity
+        onPress={onPress}
+        style={[
+          styles.row,
+          isTV &&
+            tvTokens && {
+              padding: tvTokens.cardPadding,
+              height: "auto",
+              minHeight: 80,
+            },
+        ]}>
+        <View
+          style={[
+            styles.rowIcon,
+            {backgroundColor: iconBackground},
+            isTV &&
+              tvTokens && {
+                width: tvTokens.iconSize + 6,
+                height: tvTokens.iconSize + 6,
+                borderRadius: 8,
+              },
+          ]}>
           <Feather
             color={"#fff"}
             // @ts-ignore
             name={icon}
-            size={20}
+            size={isTV && tvTokens ? tvTokens.iconSize : 20}
           />
         </View>
-        <Text style={styles.rowLabel}>{label}</Text>
+        <Text
+          style={[
+            styles.rowLabel,
+            {color: style.textColor},
+            isTV &&
+              tvTokens && {
+                fontSize: tvTokens.bodyFontSize,
+                fontWeight: "600",
+              },
+          ]}>
+          {label}
+        </Text>
 
         <View style={styles.rowSpacer} />
 
         {selected ? (
-          <Feather color={"#C6C6C6"} name={"check"} size={20} />
+          <Feather
+            color={"#C6C6C6"}
+            name={"check"}
+            size={isTV && tvTokens ? tvTokens.iconSize - 8 : 20}
+          />
         ) : null}
       </TouchableOpacity>
     </View>
@@ -117,21 +281,71 @@ export function SettingsButton({
   iconBackground,
   label,
 }: PropsSettingsButton) {
+  const {style} = useAppStyle();
+  const isTV = Platform.isTV;
+  const tvTokens = style.appleTVTokens;
+
   return (
-    <View style={[styles.rowWrapper, styles.rowFirst]}>
-      <TouchableOpacity onPress={onPress} style={styles.row}>
+    <View
+      style={[
+        styles.rowWrapper,
+        styles.rowFirst,
+        isTV &&
+          tvTokens && {
+            backgroundColor: tvTokens.cardBackgroundColor,
+            borderRadius: tvTokens.cardBorderRadius,
+            marginHorizontal: tvTokens.cardMargin,
+            marginVertical: tvTokens.cardMargin / 2,
+            shadowColor: tvTokens.shadowColor,
+            shadowOpacity: tvTokens.shadowOpacity,
+            shadowRadius: tvTokens.shadowRadius,
+            elevation: tvTokens.elevation,
+          },
+      ]}>
+      <TouchableOpacity
+        onPress={onPress}
+        style={[
+          styles.row,
+          isTV &&
+            tvTokens && {
+              padding: tvTokens.cardPadding,
+              height: "auto",
+              minHeight: 80,
+            },
+        ]}>
         {icon && iconBackground ? (
-          <View style={[styles.rowIcon, {backgroundColor: iconBackground}]}>
+          <View
+            style={[
+              styles.rowIcon,
+              {backgroundColor: iconBackground},
+              isTV &&
+                tvTokens && {
+                  width: tvTokens.iconSize + 6,
+                  height: tvTokens.iconSize + 6,
+                  borderRadius: 8,
+                },
+            ]}>
             <Feather
               color={"#fff"}
               // @ts-ignore
               name={icon}
-              size={20}
+              size={isTV && tvTokens ? tvTokens.iconSize : 20}
             />
           </View>
         ) : null}
 
-        <Text style={styles.rowLabel}>{label}</Text>
+        <Text
+          style={[
+            styles.rowLabel,
+            {color: style.textColor},
+            isTV &&
+              tvTokens && {
+                fontSize: tvTokens.bodyFontSize,
+                fontWeight: "600",
+              },
+          ]}>
+          {label}
+        </Text>
 
         <View style={styles.rowSpacer} />
       </TouchableOpacity>
