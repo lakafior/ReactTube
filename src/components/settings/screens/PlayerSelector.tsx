@@ -1,6 +1,7 @@
-import {StyleSheet} from "react-native";
+import {StyleSheet, ScrollView, Platform} from "react-native";
 
 import {AppSettings, useAppData} from "../../../context/AppDataContext";
+import {useAppStyle} from "../../../context/AppStyleContext";
 import {SettingsSelectorItem} from "../SettingsItem";
 import SettingsSection from "../SettingsSection";
 
@@ -26,10 +27,18 @@ const playerTypes: {[key: string]: PlayerType} = {
 
 export default function PlayerTypeSelectorScreen() {
   const {appSettings, updateSettings} = useAppData();
+  const {style} = useAppStyle();
   const player = parsePlayerType(appSettings);
+  const isTV = Platform.isTV;
+  const tvTokens = style.appleTVTokens;
 
-  return (
-    <SettingsSection style={styles.container} sectionTitle={"Player Types"}>
+  const content = (
+    <SettingsSection
+      style={[
+        styles.container,
+        isTV && {backgroundColor: style.backgroundColor},
+      ]}
+      sectionTitle={"Player Types"}>
       {Object.values(playerTypes).map(v => (
         <SettingsSelectorItem
           key={v.key}
@@ -45,6 +54,21 @@ export default function PlayerTypeSelectorScreen() {
       ))}
     </SettingsSection>
   );
+
+  if (isTV && tvTokens) {
+    return (
+      <ScrollView
+        style={{backgroundColor: style.backgroundColor}}
+        contentContainerStyle={{
+          paddingBottom: tvTokens.cardMargin * 4,
+        }}
+        showsVerticalScrollIndicator={false}>
+        {content}
+      </ScrollView>
+    );
+  }
+
+  return content;
 }
 
 const styles = StyleSheet.create({

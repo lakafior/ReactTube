@@ -1,6 +1,7 @@
-import {StyleSheet} from "react-native";
+import {StyleSheet, ScrollView, Platform} from "react-native";
 
 import {AppSettings, useAppData} from "../../../context/AppDataContext";
+import {useAppStyle} from "../../../context/AppStyleContext";
 import {SettingsSelectorItem} from "../SettingsItem";
 import SettingsSection from "../SettingsSection";
 
@@ -26,7 +27,10 @@ const playerResolutions: {[key: string]: PlayerResolution} = {
 
 export default function PlayerResolutionSelectorScreen() {
   const {appSettings, updateSettings} = useAppData();
+  const {style} = useAppStyle();
   const player = parsePlayerResolution(appSettings);
+  const isTV = Platform.isTV;
+  const tvTokens = style.appleTVTokens;
 
   const onPress = (type: PlayerResolution) => {
     if (type.key === "http") {
@@ -47,9 +51,12 @@ export default function PlayerResolutionSelectorScreen() {
     }
   };
 
-  return (
+  const content = (
     <SettingsSection
-      style={styles.container}
+      style={[
+        styles.container,
+        isTV && {backgroundColor: style.backgroundColor},
+      ]}
       sectionTitle={"Player Resolution Variant"}>
       {Object.values(playerResolutions).map(v => (
         <SettingsSelectorItem
@@ -61,6 +68,21 @@ export default function PlayerResolutionSelectorScreen() {
       ))}
     </SettingsSection>
   );
+
+  if (isTV && tvTokens) {
+    return (
+      <ScrollView
+        style={{backgroundColor: style.backgroundColor}}
+        contentContainerStyle={{
+          paddingBottom: tvTokens.cardMargin * 4,
+        }}
+        showsVerticalScrollIndicator={false}>
+        {content}
+      </ScrollView>
+    );
+  }
+
+  return content;
 }
 
 const styles = StyleSheet.create({
