@@ -1,9 +1,10 @@
-import {StyleSheet} from "react-native";
+import {StyleSheet, ScrollView, Platform} from "react-native";
 
 import {SettingsSelectorItem} from "../SettingsItem";
 import SettingsSection from "../SettingsSection";
 
 import {AppSettings, useAppData} from "@/context/AppDataContext";
+import {useAppStyle} from "@/context/AppStyleContext";
 
 interface TrackingSelection {
   key: string;
@@ -23,6 +24,9 @@ const trackingOptions: {[key: string]: TrackingSelection} = {
 
 export default function TrackingSelector() {
   const {appSettings, updateSettings} = useAppData();
+  const {style} = useAppStyle();
+  const isTV = Platform.isTV;
+  const tvTokens = style.appleTVTokens;
 
   const onPress = (type: TrackingSelection) => {
     if (type.key === "enabled") {
@@ -36,8 +40,13 @@ export default function TrackingSelector() {
     }
   };
 
-  return (
-    <SettingsSection style={styles.container} sectionTitle={"Video Tracking"}>
+  const content = (
+    <SettingsSection
+      style={[
+        styles.container,
+        isTV && {backgroundColor: style.backgroundColor},
+      ]}
+      sectionTitle={"Video Tracking"}>
       {Object.values(trackingOptions).map(v => (
         <SettingsSelectorItem
           key={v.key}
@@ -48,6 +57,21 @@ export default function TrackingSelector() {
       ))}
     </SettingsSection>
   );
+
+  if (isTV && tvTokens) {
+    return (
+      <ScrollView
+        style={{backgroundColor: style.backgroundColor}}
+        contentContainerStyle={{
+          paddingBottom: tvTokens.cardMargin * 4,
+        }}
+        showsVerticalScrollIndicator={false}>
+        {content}
+      </ScrollView>
+    );
+  }
+
+  return content;
 }
 
 const styles = StyleSheet.create({

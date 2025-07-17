@@ -1,7 +1,12 @@
 import {useNavigation} from "@react-navigation/native";
 import {Icon} from "@rneui/base";
 import React, {forwardRef, useCallback, useEffect, useState} from "react";
-import {StyleSheet, TouchableOpacity, TVFocusGuideView} from "react-native";
+import {
+  StyleSheet,
+  TouchableOpacity,
+  TVFocusGuideView,
+  Platform,
+} from "react-native";
 import Animated, {
   FadeIn,
   FadeOut,
@@ -9,6 +14,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
+  withSpring,
 } from "react-native-reanimated";
 
 import {NativeStackProp} from "./types";
@@ -25,6 +31,9 @@ interface Props {
 
 export default function Drawer({open, onOpen, onClose, hideDrawer}: Props) {
   const account = useAccountContext();
+  const {style} = useAppStyle();
+  const isTV = Platform.isTV;
+  const tvTokens = style.appleTVTokens;
 
   useEffect(() => {
     openDrawer.value = open;
@@ -32,11 +41,18 @@ export default function Drawer({open, onOpen, onClose, hideDrawer}: Props) {
 
   const openDrawer = useSharedValue(open);
 
-  const style = useAnimatedStyle(() => {
+  const style_animated = useAnimatedStyle(() => {
+    const baseWidth = isTV && tvTokens ? 400 : 300;
+    const collapsedWidth = isTV && tvTokens ? 200 : 150;
+
     return {
       height: "100%",
-      width: withTiming(hideDrawer.value ? 0 : openDrawer.value ? 300 : 150),
-      paddingStart: withTiming(hideDrawer.value ? 0 : 40),
+      width: withTiming(
+        hideDrawer.value ? 0 : openDrawer.value ? baseWidth : collapsedWidth,
+      ),
+      paddingStart: withTiming(
+        hideDrawer.value ? 0 : isTV && tvTokens ? 60 : 40,
+      ),
     };
   });
 
@@ -54,7 +70,19 @@ export default function Drawer({open, onOpen, onClose, hideDrawer}: Props) {
 
   return (
     <TVFocusGuideView autoFocus>
-      <Animated.View style={[styles.container, style]}>
+      <Animated.View
+        style={[
+          styles.container,
+          style_animated,
+          isTV &&
+            tvTokens && {
+              backgroundColor: tvTokens.cardBackgroundColor,
+              shadowColor: tvTokens.shadowColor,
+              shadowOpacity: tvTokens.shadowOpacity,
+              shadowRadius: tvTokens.shadowRadius,
+              elevation: tvTokens.elevation,
+            },
+        ]}>
         <DrawerItem
           title={"Home"}
           onFocus={() => onOpen()}
@@ -179,6 +207,8 @@ const DrawerItem = forwardRef<
     ref,
   ) => {
     const {style} = useAppStyle();
+    const isTV = Platform.isTV;
+    const tvTokens = style.appleTVTokens;
     const [focus, setFocus] = useState(false);
 
     const textStyle = useAnimatedStyle(() => {
@@ -187,46 +217,85 @@ const DrawerItem = forwardRef<
       };
     });
 
+    const focusStyle = useAnimatedStyle(() => {
+      if (!isTV || !tvTokens) return {};
+
+      return {
+        transform: [
+          {
+            scale: withSpring(focus ? tvTokens.focusedScale : 1, {
+              damping: 15,
+              stiffness: 200,
+            }),
+          },
+        ],
+        opacity: withTiming(focus ? tvTokens.focusedOpacity : 1),
+      };
+    });
+
     return (
-      <TouchableOpacity
-        style={[
-          itemStyles.container,
-          start || bottom
-            ? {flex: 1, justifyContent: start ? "flex-end" : "flex-start"}
-            : {},
-        ]}
-        onPress={onPress}
-        onFocus={() => {
-          setFocus(true);
-          onFocus?.();
-        }}
-        onBlur={() => {
-          setFocus(false);
-          onBlur?.();
-        }}>
-        <Animated.View
-          style={itemStyles.viewContainer}
-          entering={FadeIn}
-          exiting={FadeOut}>
-          {iconTitle ? (
-            <Icon name={iconTitle} type={iconType} color={"white"} size={30} />
-          ) : null}
-          {open ? (
-            <Animated.Text
-              numberOfLines={1}
-              style={[itemStyles.text, {color: style.textColor}, textStyle]}>
-              {title}
-            </Animated.Text>
-          ) : null}
-        </Animated.View>
-      </TouchableOpacity>
+      <Animated.View style={focusStyle}>
+        <TouchableOpacity
+          style={[
+            itemStyles.container,
+            start || bottom
+              ? {flex: 1, justifyContent: start ? "flex-end" : "flex-start"}
+              : {},
+            isTV &&
+              tvTokens &&
+              focus && {
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                borderRadius: tvTokens.cardBorderRadius / 2,
+                marginHorizontal: 8,
+              },
+          ]}
+          onPress={onPress}
+          onFocus={() => {
+            setFocus(true);
+            onFocus?.();
+          }}
+          onBlur={() => {
+            setFocus(false);
+            onBlur?.();
+          }}>
+          <Animated.View
+            style={itemStyles.viewContainer}
+            entering={FadeIn}
+            exiting={FadeOut}>
+            {iconTitle ? (
+              <Icon
+                name={iconTitle}
+                type={iconType}
+                color={"white"}
+                size={isTV && tvTokens ? tvTokens.iconSize : 30}
+              />
+            ) : null}
+            {open ? (
+              <Animated.Text
+                numberOfLines={1}
+                style={[
+                  itemStyles.text,
+                  {color: style.textColor},
+                  textStyle,
+                  isTV &&
+                    tvTokens && {
+                      fontSize: tvTokens.bodyFontSize,
+                      fontWeight: "600",
+                    },
+                ]}>
+                {title}
+              </Animated.Text>
+            ) : null}
+          </Animated.View>
+        </TouchableOpacity>
+      </Animated.View>
     );
   },
 );
 
 const itemStyles = StyleSheet.create({
   container: {
-    padding: 20,
+    padding: Platform.isTV ? 24 : 20,
     flex: 0,
   },
   viewContainer: {
@@ -234,7 +303,8 @@ const itemStyles = StyleSheet.create({
     alignItems: "center",
   },
   text: {
-    fontSize: 20,
-    paddingStart: 15,
+    fontSize: Platform.isTV ? 22 : 20,
+    paddingStart: Platform.isTV ? 20 : 15,
+    fontWeight: Platform.isTV ? "600" : "normal",
   },
 });

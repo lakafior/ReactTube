@@ -1,5 +1,14 @@
 import React from "react";
-import {StyleProp, StyleSheet, Text, View, ViewStyle} from "react-native";
+import {
+  StyleProp,
+  StyleSheet,
+  Text,
+  View,
+  ViewStyle,
+  Platform,
+} from "react-native";
+
+import {useAppStyle} from "../../context/AppStyleContext";
 
 interface Props {
   children?: React.ReactNode;
@@ -12,10 +21,50 @@ export default function SettingsSection({
   style,
   sectionTitle,
 }: Props) {
+  const {style: appStyle} = useAppStyle();
+  const isTV = Platform.isTV;
+  const tvTokens = appStyle.appleTVTokens;
+
   return (
-    <View style={[styles.section, style]}>
-      <Text style={styles.sectionTitle}>{sectionTitle}</Text>
-      <View style={styles.sectionBody}>{children}</View>
+    <View
+      style={[
+        styles.section,
+        style,
+        isTV &&
+          tvTokens && {
+            paddingTop: tvTokens.cardMargin * 2,
+            paddingHorizontal: tvTokens.cardMargin,
+          },
+      ]}>
+      <Text
+        style={[
+          styles.sectionTitle,
+          {color: appStyle.textColor},
+          isTV &&
+            tvTokens && {
+              fontSize: tvTokens.headerFontSize,
+              fontWeight: "700",
+              marginHorizontal: tvTokens.cardMargin,
+              marginVertical: tvTokens.cardMargin,
+              textTransform: "none",
+              letterSpacing: 0,
+            },
+        ]}>
+        {sectionTitle}
+      </Text>
+      <View
+        style={[
+          styles.sectionBody,
+          isTV &&
+            tvTokens && {
+              paddingLeft: 0,
+              backgroundColor: "transparent",
+              borderTopWidth: 0,
+              borderBottomWidth: 0,
+            },
+        ]}>
+        {children}
+      </View>
     </View>
   );
 }
